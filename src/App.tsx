@@ -1,4 +1,6 @@
-import styles from "./App.module.css";
+import "./App.css";
+import List from "./components/List";
+import Search from "./components/Search";
 
 const list = [
   {
@@ -19,23 +21,12 @@ const list = [
   },
 ];
 
-function getTitle() {
-  return "Hello React";
-}
-
 function App() {
   return (
-    <div className={styles.container}>
-      <h1>{getTitle()}</h1>
-      <label htmlFor="search">Search</label>
-      <input id="search" />
-      {list.map((item) => (
-        <div>
-          <p>{item.title}</p>
-          <p>{item.url}</p>
-          <p>{item.author}</p>
-        </div>
-      ))}
+    <div className="container">
+      <h1>Hacker Stories</h1>
+      <Search />
+      <List stories={list} />
     </div>
   );
 }
