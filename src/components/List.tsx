@@ -1,4 +1,4 @@
-const List = (props: any) => {
+const List = ({ stories }: any) => {
   return (
     <div>
       <div className="tableHeader">
@@ -6,15 +6,19 @@ const List = (props: any) => {
         <span>URL</span>
         <span>Author</span>
       </div>
-      {props.stories.map((item: any) => (
-        <div>
-          <span>{item.title}</span>
-          <span>{item.url}</span>
-          <span>{item.author}</span>
-        </div>
+      {stories.map((item: any) => (
+        <Item key={item.objectID} item={item} />
       ))}
     </div>
   );
 };
+
+const Item = ({ item }: any) => (
+  <div>
+    <span>{item.title}</span>
+    <span>{item.url}</span>
+    <span>{item.author}</span>
+  </div>
+);
 
 export default List;
