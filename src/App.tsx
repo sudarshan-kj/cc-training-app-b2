@@ -2,8 +2,9 @@ import "./App.css";
 import List from "./components/List";
 import InputWithLabel from "./components/InputWithLabel";
 import useSemiPersistentState from "./hooks/useSemiPersistentState";
+import { useEffect, useState } from "react";
 
-const list = [
+const initList = [
   {
     title: "React",
     url: "https://reactjs.org/",
@@ -23,7 +24,7 @@ const list = [
   {
     title: "Redux",
     url: "https://redux.js.org/",
-    author: "Dan Abramov, Andrew Clark",
+    author: "Andrew Clark",
     num_comments: 2,
     points: 5,
     objectID: 2,
@@ -32,14 +33,39 @@ const list = [
 
 function App() {
   const [searchTerm, setSearchTerm] = useSemiPersistentState("", "searchTerm");
-  //callback handler
+  const [stories, setStories] = useState([]);
+  const [isLoading, setLoading] = useState(false);
+  const [isError, setError] = useState(false);
+
   const handleSearchChange = (e: any) => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredList: any = list.filter((item: any) =>
-    item.title.includes(searchTerm)
+  const getAsyncStories = new Promise((res, rej) =>
+    setTimeout(() => rej({ data: { stories: initList } }), 2000)
   );
+
+  useEffect(() => {
+    setLoading(true);
+    getAsyncStories
+      .then((result: any) => {
+        setStories(result.data.stories);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
+  }, []);
+
+  const filteredList: any = stories.filter((item: any) =>
+    item.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleRemoveStory = (id: any) => {
+    const newStories = stories.filter((item: any) => item.objectID !== id);
+    setStories(newStories);
+  };
 
   return (
     <div className="container">
@@ -48,10 +74,16 @@ function App() {
         id="search"
         value={searchTerm}
         onChange={handleSearchChange}
+        autoFocus={true}
       >
         Search
       </InputWithLabel>
-      <List stories={filteredList} />
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <List stories={filteredList} onDelete={handleRemoveStory} />
+      )}
+      {isError && <p>Something went wrong!</p>}
     </div>
   );
 }
