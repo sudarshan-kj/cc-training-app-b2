@@ -1,7 +1,7 @@
 import "./App.css";
 import List from "./components/List";
-import Search from "./components/Search";
-import { useState } from "react";
+import InputWithLabel from "./components/InputWithLabel";
+import useSemiPersistentState from "./hooks/useSemiPersistentState";
 
 const list = [
   {
@@ -31,8 +31,7 @@ const list = [
 ];
 
 function App() {
-  const [searchTerm, setSearchTerm] = useState<any>("");
-
+  const [searchTerm, setSearchTerm] = useSemiPersistentState("", "searchTerm");
   //callback handler
   const handleSearchChange = (e: any) => {
     setSearchTerm(e.target.value);
@@ -45,7 +44,13 @@ function App() {
   return (
     <div className="container">
       <h1>Hacker Stories</h1>
-      <Search onChange={handleSearchChange} />
+      <InputWithLabel
+        id="search"
+        value={searchTerm}
+        onChange={handleSearchChange}
+      >
+        Search
+      </InputWithLabel>
       <List stories={filteredList} />
     </div>
   );
