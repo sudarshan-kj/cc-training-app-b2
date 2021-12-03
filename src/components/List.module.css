@@ -1,0 +1,13 @@
+span {
+  display: inline-block;
+  margin-top: 1rem;
+  margin-right: 3rem;
+  width: 250px;
+}
+
+.itemTitle,
+.itemUrl {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}

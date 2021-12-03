@@ -6,13 +6,6 @@
   font-weight: bold;
 }
 
-span {
-  display: inline-block;
-  margin-top: 1rem;
-  margin-right: 3rem;
-  min-width: 150px;
-}
-
 label {
   margin-right: 1rem;
 }

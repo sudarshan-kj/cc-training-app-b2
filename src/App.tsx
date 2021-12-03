@@ -2,69 +2,56 @@ import "./App.css";
 import List from "./components/List";
 import InputWithLabel from "./components/InputWithLabel";
 import useSemiPersistentState from "./hooks/useSemiPersistentState";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer } from "react";
 
-const initList = [
-  {
-    title: "React",
-    url: "https://reactjs.org/",
-    author: "Jordan Walke",
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: "Learn React",
-    url: "https://reactjs.org/",
-    author: "Jordan Walke",
-    num_comments: 3,
-    points: 4,
-    objectID: 1,
-  },
-  {
-    title: "Redux",
-    url: "https://redux.js.org/",
-    author: "Andrew Clark",
-    num_comments: 2,
-    points: 5,
-    objectID: 2,
-  },
-];
+const storiesReducer = (state: any, action: any) => {
+  switch (action.type) {
+    case "FETCH_INIT":
+      return { ...state, isLoading: true, isError: false };
+    case "SET_STORIES":
+      return { data: action.payload, isLoading: false, isError: false };
+    case "REMOVE_STORY": {
+      const showStories = state.data.filter(
+        (item: any) => item.objectID !== action.payload
+      );
+      return { data: showStories, isLoading: false, isError: false };
+    }
+    case "FETCH_STORIES_FAILED":
+      return { ...state, isError: true, isLoading: false };
+    default:
+      return state;
+  }
+};
+
+const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 function App() {
   const [searchTerm, setSearchTerm] = useSemiPersistentState("", "searchTerm");
-  const [stories, setStories] = useState([]);
-  const [isLoading, setLoading] = useState(false);
-  const [isError, setError] = useState(false);
+  const [stories, dispatchStories] = useReducer(storiesReducer, {
+    data: [],
+    isLoading: false,
+    isError: false,
+  });
 
   const handleSearchChange = (e: any) => {
     setSearchTerm(e.target.value);
   };
 
-  const getAsyncStories = new Promise((res, rej) =>
-    setTimeout(() => rej({ data: { stories: initList } }), 2000)
-  );
-
   useEffect(() => {
-    setLoading(true);
-    getAsyncStories
+    dispatchStories({ type: "FETCH_INIT" });
+    fetch(API_ENDPOINT + searchTerm)
+      .then((res) => res.json())
       .then((result: any) => {
-        setStories(result.data.stories);
-        setLoading(false);
+        dispatchStories({ type: "SET_STORIES", payload: result.hits });
       })
-      .catch(() => {
-        setError(true);
-        setLoading(false);
+      .catch((e) => {
+        console.log("Error is", e);
+        dispatchStories({ type: "FETCH_STORIES_FAILED" });
       });
-  }, []);
-
-  const filteredList: any = stories.filter((item: any) =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  }, [searchTerm]);
 
   const handleRemoveStory = (id: any) => {
-    const newStories = stories.filter((item: any) => item.objectID !== id);
-    setStories(newStories);
+    dispatchStories({ type: "REMOVE_STORY", payload: id });
   };
 
   return (
@@ -78,12 +65,12 @@ function App() {
       >
         Search
       </InputWithLabel>
-      {isLoading ? (
+      {stories.isLoading ? (
         <p>Loading...</p>
       ) : (
-        <List stories={filteredList} onDelete={handleRemoveStory} />
+        <List stories={stories.data} onDelete={handleRemoveStory} />
       )}
-      {isError && <p>Something went wrong!</p>}
+      {stories.isError && <p>Something went wrong!</p>}
     </div>
   );
 }

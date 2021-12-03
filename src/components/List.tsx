@@ -1,3 +1,5 @@
+import styles from "./List.module.css";
+
 const List = ({ stories, onDelete }: any) => {
   return (
     <div>
@@ -16,8 +18,8 @@ const List = ({ stories, onDelete }: any) => {
 
 const Item = ({ item, onDelete }: any) => (
   <div>
-    <span>{item.title}</span>
-    <span>{item.url}</span>
+    <span className={styles.itemTitle}>{item.title}</span>
+    <span className={styles.itemUrl}>{item.url}</span>
     <span>{item.author}</span>
     <button onClick={() => onDelete(item.objectID)}>Delete</button>
   </div>
