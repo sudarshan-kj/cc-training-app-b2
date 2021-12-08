@@ -1,8 +1,9 @@
 import "./App.css";
 import List from "./components/List";
-import InputWithLabel from "./components/InputWithLabel";
 import useSemiPersistentState from "./hooks/useSemiPersistentState";
-import { useEffect, useReducer } from "react";
+import { useCallback, useEffect, useReducer, useState } from "react";
+import axios from "axios";
+import SearchForm from "./components/SearchForm";
 
 const storiesReducer = (state: any, action: any) => {
   switch (action.type) {
@@ -32,23 +33,30 @@ function App() {
     isLoading: false,
     isError: false,
   });
+  const [url, setUrl] = useState(API_ENDPOINT);
 
   const handleSearchChange = (e: any) => {
     setSearchTerm(e.target.value);
   };
 
-  useEffect(() => {
+  const handleStorySubmit = (e: any) => {
+    e.preventDefault();
+    setUrl(API_ENDPOINT + searchTerm);
+  };
+
+  const handleFetchStory = useCallback(async () => {
     dispatchStories({ type: "FETCH_INIT" });
-    fetch(API_ENDPOINT + searchTerm)
-      .then((res) => res.json())
-      .then((result: any) => {
-        dispatchStories({ type: "SET_STORIES", payload: result.hits });
-      })
-      .catch((e) => {
-        console.log("Error is", e);
-        dispatchStories({ type: "FETCH_STORIES_FAILED" });
-      });
-  }, [searchTerm]);
+    try {
+      const response = await axios.get(url);
+      dispatchStories({ type: "SET_STORIES", payload: response.data.hits });
+    } catch (e) {
+      dispatchStories({ type: "FETCH_STORIES_FAILED" });
+    }
+  }, [url]);
+
+  useEffect(() => {
+    handleFetchStory();
+  }, [handleFetchStory]);
 
   const handleRemoveStory = (id: any) => {
     dispatchStories({ type: "REMOVE_STORY", payload: id });
@@ -57,14 +65,11 @@ function App() {
   return (
     <div className="container">
       <h1>Hacker Stories</h1>
-      <InputWithLabel
-        id="search"
-        value={searchTerm}
-        onChange={handleSearchChange}
-        autoFocus={true}
-      >
-        Search
-      </InputWithLabel>
+      <SearchForm
+        onSearch={handleSearchChange}
+        onSubmit={handleStorySubmit}
+        searchTerm={searchTerm}
+      />
       {stories.isLoading ? (
         <p>Loading...</p>
       ) : (
