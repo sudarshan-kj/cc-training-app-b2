@@ -1,6 +1,27 @@
+import { memo } from "react";
 import styles from "./List.module.css";
 
-const List = ({ stories, onDelete }: any) => {
+type Story = {
+  title: string;
+  url: string;
+  objectID: string;
+  author: string;
+  num_comments: number;
+};
+
+type ItemProps = {
+  item: Story;
+  onDelete: (id: string) => void;
+};
+
+export type Stories = Array<Story>;
+
+type ListProps = {
+  stories: Stories;
+  onDelete: (id: string) => void;
+};
+
+const List = memo(({ stories, onDelete }: ListProps) => {
   return (
     <div>
       <div className="tableHeader">
@@ -14,9 +35,9 @@ const List = ({ stories, onDelete }: any) => {
       ))}
     </div>
   );
-};
+});
 
-const Item = ({ item, onDelete }: any) => (
+const Item = ({ item, onDelete }: ItemProps) => (
   <div>
     <span className={styles.itemTitle}>{item.title}</span>
     <span className={styles.itemUrl}>{item.url}</span>

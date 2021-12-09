@@ -1,6 +1,13 @@
+import { ChangeEvent, FormEvent } from "react";
 import InputWithLabel from "./InputWithLabel";
 
-const SearchForm = ({ onSubmit, onSearch, searchTerm }: any) => {
+type SearchFormProps = {
+  onSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  onSearch: (e: ChangeEvent<HTMLInputElement>) => void;
+  searchTerm: string;
+};
+
+const SearchForm = ({ onSubmit, onSearch, searchTerm }: SearchFormProps) => {
   return (
     <form onSubmit={onSubmit}>
       <InputWithLabel

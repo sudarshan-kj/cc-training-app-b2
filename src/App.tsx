@@ -1,11 +1,31 @@
 import "./App.css";
 import List from "./components/List";
 import useSemiPersistentState from "./hooks/useSemiPersistentState";
-import { useCallback, useEffect, useReducer, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useReducer,
+  useState,
+  useMemo,
+  ChangeEvent,
+  FormEvent,
+} from "react";
 import axios from "axios";
 import SearchForm from "./components/SearchForm";
+import { Stories } from "./components/List";
 
-const storiesReducer = (state: any, action: any) => {
+type StoriesState = {
+  data: Stories;
+  isLoading: boolean;
+  isError: boolean;
+};
+
+type StoriesAction = {
+  type: string;
+  payload?: any;
+};
+
+const storiesReducer = (state: StoriesState, action: StoriesAction) => {
   switch (action.type) {
     case "FETCH_INIT":
       return { ...state, isLoading: true, isError: false };
@@ -35,11 +55,11 @@ function App() {
   });
   const [url, setUrl] = useState(API_ENDPOINT);
 
-  const handleSearchChange = (e: any) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
 
-  const handleStorySubmit = (e: any) => {
+  const handleStorySubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setUrl(API_ENDPOINT + searchTerm);
   };
@@ -48,6 +68,7 @@ function App() {
     dispatchStories({ type: "FETCH_INIT" });
     try {
       const response = await axios.get(url);
+      console.log("Response is", response);
       dispatchStories({ type: "SET_STORIES", payload: response.data.hits });
     } catch (e) {
       dispatchStories({ type: "FETCH_STORIES_FAILED" });
@@ -58,13 +79,20 @@ function App() {
     handleFetchStory();
   }, [handleFetchStory]);
 
-  const handleRemoveStory = (id: any) => {
+  const handleRemoveStory = useCallback((id: any) => {
     dispatchStories({ type: "REMOVE_STORY", payload: id });
-  };
+  }, []);
+
+  const getComments = useMemo(() => {
+    return stories.data.reduce(
+      (acc: number, current: any) => (acc += current.num_comments),
+      0
+    );
+  }, [stories]);
 
   return (
     <div className="container">
-      <h1>Hacker Stories</h1>
+      <h1>Hacker Stories with {getComments} comments</h1>
       <SearchForm
         onSearch={handleSearchChange}
         onSubmit={handleStorySubmit}

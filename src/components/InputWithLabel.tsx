@@ -1,4 +1,12 @@
-import { useEffect, useRef } from "react";
+import { ChangeEvent, ReactChild } from "react";
+
+type InputWithLabelProps = {
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  value: string;
+  children: ReactChild;
+  id: string;
+  autoFocus: boolean;
+};
 
 const InputWithLabel = ({
   onChange,
@@ -6,9 +14,9 @@ const InputWithLabel = ({
   children,
   id,
   autoFocus = false,
-}: any) => {
+}: InputWithLabelProps) => {
   //event handler function
-  const handleChange = (e: any) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     onChange(e);
   };
 
