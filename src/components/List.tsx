@@ -4,21 +4,22 @@ import styles from "./List.module.css";
 type Story = {
   title: string;
   url: string;
-  objectID: string;
   author: string;
+  points: number;
+  objectID: number;
   num_comments: number;
 };
 
 type ItemProps = {
   item: Story;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 };
 
 export type Stories = Array<Story>;
 
 type ListProps = {
   stories: Stories;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 };
 
 const List = memo(({ stories, onDelete }: ListProps) => {
@@ -42,8 +43,16 @@ const Item = ({ item, onDelete }: ItemProps) => (
     <span className={styles.itemTitle}>{item.title}</span>
     <span className={styles.itemUrl}>{item.url}</span>
     <span>{item.author}</span>
-    <button onClick={() => onDelete(item.objectID)}>Delete</button>
+    <button
+      onClick={() => {
+        onDelete(item.objectID);
+      }}
+    >
+      Delete
+    </button>
   </div>
 );
 
 export default List;
+
+export { Item };
